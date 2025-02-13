@@ -22,12 +22,14 @@ scheduled_meetings = set()
 
 def send_wol(room):
     """ Sends a Wake-on-LAN packet to the TV in the specified room """
+    print("Try sending a wol-package")
     mac_address = ROOM_MACS.get(room)
     if mac_address:
         wakeonlan.send_magic_packet(mac_address)
-        print(f"🚀 WOL sent to {room} ({mac_address})")
+        print(f"WOL sent to {room} ({mac_address})")
     else:
-        print(f"⚠️ MAC address for {room} not found!")
+        print(f"MAC address for {room} not found!")
+    return schedule.CancelJob
 
 def schedule_wol():
     """ Reads meetings.json and schedules WOL packets 5 minutes before meetings """
@@ -47,19 +49,29 @@ def schedule_wol():
         if (room, notify_str) in scheduled_meetings:
             continue  # Skip duplicates
         
+        if start_time < datetime.datetime.now():
+            continue
+        
         scheduled_meetings.add((room, notify_str))
         schedule.every().day.at(notify_str).do(send_wol, room)
-        print(f"✅ WOL scheduled for {room} at {notify_str}")
+        schedule.every().day.at(start_time.strftime("%H:%M")).do(send_wol, room)
+        print(f"WOL scheduled for {room} at {notify_str}")
         
 def handle_exit(signum,frame):
     print("\n Shutdown requested... Exiting")
     sys.exit(1)
 
+def print_scheduled():
+    for job in schedule.get_jobs():
+        print(f"Taak:{job.job_func}, Geplant voor: {job.next_run}")
+
 def run_scheduler():
     """ Runs the scheduler continuously """
     while True:
+        schedule_wol()
         schedule.run_pending()
-        time.sleep(300)
+        time.sleep(30)
+    
         
 if __name__ == "__main__":
     # Register signal handler for CTRL + C
@@ -67,8 +79,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 2:
         try:
-            # Initial scheduling
-            schedule_wol()
             # Run the scheduler loop
             run_scheduler()
         except KeyboardInterrupt:
