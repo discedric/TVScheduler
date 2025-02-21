@@ -1,9 +1,5 @@
 meeting.json
 config.json
-venv/lib
-venv/lib64
-venv
 meetings.json
-
 Scheduler/dump.json
 flaskWebServer/google-chrome-stable_current_amd64.deb
