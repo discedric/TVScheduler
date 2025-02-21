@@ -42,7 +42,7 @@ def schedule_wol():
     
     for meeting in meetings:
         room = meeting["room"]
-        start_time = datetime.datetime.fromisoformat(meeting["start_time"].replace("Z", ""))
+        start_time = datetime.datetime.fromisoformat(meeting["datetime"].replace("Z", ""))
         notify_time = start_time - datetime.timedelta(minutes=5)
         notify_str = notify_time.strftime("%H:%M")
         

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komende Meetings</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/Style/index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Komende Meetings</h1>
+        <div id="meetings">
+            {% for meeting in meetings %}
+                <div class="meeting">
+                    <h3>{{ meeting.subject }}</h3>
+                    <p><strong>Tijd:</strong> {{ meeting.time }}</p>
+                    {% if dev %}
+                        <p><strong>Datum:</strong> {{ meeting.date }}</p>
+                    {% endif %}
+                    <p><strong>Ruimte:</strong> {{ meeting.room }}</p>
+                    <div class="attendees-container">
+                        {% for person in meeting.attendees %}
+                            <div class="attendee">{{ person.Person.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+</body>
+</html>
