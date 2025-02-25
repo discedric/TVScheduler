@@ -9,25 +9,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>Komende Meetings</h1>
-        <div id="meetings">
+        <h1>{{ date }}</h1>
+        {% set grouped_meetings = {} %}
             {% for meeting in meetings %}
+                {% set _ = grouped_meetings.setdefault(meeting.room, []).append(meeting) %}
+            {% endfor %}
+        <div id="meetings" class="meeting-container" data-room-count="{{ grouped_meetings | length }}">
+            {% for room, room_meetings in grouped_meetings.items() | sort %}
                 <div class="meeting">
-                    <h3>{{ meeting.subject }}</h3>
-                    <p><strong>Tijd:</strong> {{ meeting.time }}</p>
-                    {% if dev %}
-                        <p><strong>Datum:</strong> {{ meeting.date }}</p>
-                    {% endif %}
-                    <p><strong>Ruimte:</strong> {{ meeting.room }}</p>
-                    <div class="attendees-container">
-                        {% for person in meeting.attendees %}
-                            <div class="attendee">{{ person.Person.name }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
+                    <strong>{{ room }}</strong>
+                    {% for meeting in room_meetings %}
+                        <div class="meetingdetail">
+                            <p><strong>Tijd:</strong> {{ meeting.time }} <strong>-</strong> {{ meeting.endtime }}</p>
+                        </div>
+                    {% endfor %}
+                </div> 
             {% endfor %}
         </div>
     </div>
-    
+    <script type="text/javascript" src="../static/js/index.js"></script>
 </body>
 </html>

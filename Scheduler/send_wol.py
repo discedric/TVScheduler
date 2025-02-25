@@ -10,7 +10,7 @@ import signal
 # Schedule WOL packets for meetings
 # deze loopt constant in de achtergrond
  
-with open('config.json','r') as f:
+with open('../Utils/config.json','r') as f:
     config = json.load(f)
 
 # MAC addresses of TVs in each room

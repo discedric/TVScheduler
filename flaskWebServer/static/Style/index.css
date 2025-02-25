@@ -21,20 +21,35 @@ h1 {
     text-align: center;
     color: #333;
 }
-.meeting {
+
+.meetingroom {
     margin-bottom: 15px;
     padding: 15px;
     background-color: #f9f9f9;
     border-left: 5px solid #007bff;
     border-radius: 5px;
 }
-.meeting h3 {
+
+.meetingdetail {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-left: 5px solid #007bff;
+    border-radius: 5px;
+}
+.meetingdetail h3 {
     margin: 0 0 5px;
     color: #007bff;
 }
-.meeting p {
+.meetingdetail p {
     margin: 2px 0;
     color: #555;
+}
+
+.meeting-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 /* Flexbox voor attendees */
@@ -51,4 +66,17 @@ h1 {
     border-radius: 12px;
     font-size: 0.9em;
     white-space: nowrap;
+}
+
+/* Meeting widths */
+.meeting-container[data-room-count="1"] .meeting {
+    flex: 1 1 100%; /* 1 ruimte → 100% breedte */
+}
+
+.meeting-container[data-room-count="2"] .meeting {
+    flex: 1 1 calc(50% - 10px); /* 2 ruimtes → 50% breedte */
+}
+
+.meeting-container[data-room-count="3"] .meeting {
+    flex: 1 1 calc(33.33% - 10px); /* 3 ruimtes → 33% breedte */
 }

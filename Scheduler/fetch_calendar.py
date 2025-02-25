@@ -1,13 +1,23 @@
+import os
 import requests
 from datetime import datetime, time, timedelta
+import time
+from dateutil import parser
 import json
 from msal import ConfidentialClientApplication
 import json
 import pytz
 
-# we kunnen deze laten lopen als een cron job voor elk uur
+# we kunnen deze laten lopen als een cron job voor elke 15 minuten
+# SHELL=/bin/bash
+# PATH=/usr/bin:/bin:/usr/sbin:/sbin:/home/cv/pythonprojects/TVScheduler/venv/bin
+# */15 * * * * source /home/cv/pythonprojects/TVScheduler/venv/bin/activate && python /home/cv/pythonprojects/TVScheduler/Scheduler/fetch_calendar.py 
 
-with open('config.json','r') as f:
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(base_dir, '..', 'Utils', 'config.json')
+
+with open(config_path,'r') as f:
     config = json.load(f)
 
 # Microsoft Graph API credentials
@@ -20,8 +30,9 @@ TENANT_ID = config['TENANT_ID']
 ROOM_CALENDARS = config['ROOM_CALENDARS']
 
 # JSON file to store meeting data
-MEETINGS_FILE = "meetings.json"
-DUMP_FILE = "dump.json"
+MEETINGS_FILE = os.path.join(base_dir, 'meetings.json')
+DUMP_FILE = os.path.join(base_dir, 'dump.json')
+
 with open(DUMP_FILE, 'w') as f:
     json.dump([], f, indent=4)
 dump = ""
@@ -34,33 +45,30 @@ def get_access_token():
     app = ConfidentialClientApplication(CLIENT_ID, CLIENT_SECRET, authority=f"https://login.microsoftonline.com/{TENANT_ID}")
     token_response = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
     
-    if "access_token" in token_response:
-        return token_response["access_token"]
+    if "access_token" in token_response: # type: ignore
+        return token_response["access_token"]# type: ignore
     else:
-        print("Error retrieving token:", token_response.get("error_description"))
+        print("Error retrieving token:", token_response.get("error_description"))# type: ignore
         return None
 
 def fetch_calendar_events():
     token = get_access_token()
     if not token:
         return
-
     headers = {"Authorization": f"Bearer {token}"}
-
     all_meetings = []
-
+    print("Fetching calendar events... at: " + str(time.time()))
     for room, email in ROOM_CALENDARS.items():
-        if "cubefd" in email:
-            continue
         print(email)
         today = datetime.now(timezone).date()
+
         start_of_day = timezone.localize(datetime.combine(today, datetime.min.time()))
         end_of_tomorrow = start_of_day + timedelta(days=1)
+
         start_of_day = start_of_day.isoformat(timespec='seconds').replace('+01:00', 'Z')
         end_of_tomorrow = end_of_tomorrow.isoformat(timespec='seconds').replace('+01:00', 'Z')
-        
-        url = f"https://graph.microsoft.com/v1.0/users/{email}/calendar/calendarView?startDateTime={start_of_day}&endDateTime={end_of_tomorrow}&$orderby=start/dateTime"
 
+        url = f"https://graph.microsoft.com/v1.0/users/{email}/calendar/calendarView?startDateTime={start_of_day}&endDateTime={end_of_tomorrow}&$orderby=start/dateTime"
         response = requests.get(url, headers=headers)
         print(response)
 
@@ -69,15 +77,15 @@ def fetch_calendar_events():
             dump_meetings(meetings)
             for meeting in meetings:
                 start_time_str = meeting["start"]["dateTime"]
-                start_time = datetime.fromisoformat(start_time_str).replace(tzinfo=pytz.UTC)  # Maak UTC datetime
-                start_time_local = start_time.astimezone(timezone)
-                
+                start_time_local = load_time(start_time_str)
+                end_time_local = load_time(meeting["end"]["dateTime"])
                 
                 
                 all_meetings.append({
-                    "room": meeting.get("location").get("displayName"),
+                    "room": meeting.get("location").get("displayName").replace("cube;","").strip(),
                     "datetime": start_time_str,
                     "time": start_time_local.strftime("%H:%M"),
+                    "endtime": end_time_local.strftime("%H:%M"),
                     "date": start_time_local.strftime("%d/%m/%Y"),
                     "subject": meeting.get("subject"),
                     "attendees": [{"Person": attendee["emailAddress"]} for attendee in meeting.get("attendees", [])]
@@ -86,14 +94,18 @@ def fetch_calendar_events():
             print(f"Fout bij ophalen van meetings voor {room}: {response.status_code} - {response.text}")
 
     # sort meetings op basis van datetime
-    all_meetings.sort(key=lambda x: datetime.fromisoformat(x["datetime"]))
+    all_meetings.sort(key=lambda x: parser.isoparse(x["datetime"]))
     
     # Sla op als JSON
     save_meetings(all_meetings)
     dump_meetings(dump)
 
     print("Meetings opgehaald en opgeslagen.")
-    
+
+def load_time(time_str):
+    time = parser.isoparse(time_str).replace(tzinfo=pytz.UTC)
+    return time.astimezone(timezone)
+
 def save_meetings(meetings):
     """schrijf opgehalade meetings naar een JSON-bestand"""
     with open(MEETINGS_FILE, 'w') as f:

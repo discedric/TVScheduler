@@ -1,5 +1,6 @@
 meeting.json
 config.json
 meetings.json
+cron_log.log
 Scheduler/dump.json
 flaskWebServer/google-chrome-stable_current_amd64.deb

@@ -1,43 +1,33 @@
+import os
 from flask import Flask, render_template
 import json
-import time
-import pychromecast
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from datetime import datetime
+import pytz
 
 app = Flask(__name__)
-cast_name = "THE BARN TV"
 
-# Configureer de Chrome-opties (bijvoorbeeld om headless te draaien)
-chrome_options = Options()
-chrome_options.add_argument("--headless")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(base_dir, '..', 'Utils', 'config.json')
+meeting_path = os.path.join(base_dir, '..', 'Scheduler', 'meetings.json')
 
-driver = webdriver.Chrome(options=chrome_options)
+with open(config_path,'r') as f:
+    config = json.load(f)
 
+timezone = pytz.timezone(config['timezone'])
 
 @app.route('/')
 def home():
-    with open('../Scheduler/meetings.json', 'r') as file:
+    today = datetime.now(timezone).date().strftime("%d/%m/%Y")
+    with open(meeting_path, 'r') as file:
         meetings = json.load(file)
-    return render_template('index.html', meetings=meetings, dev=True)
+    return render_template('index.html', meetings=meetings, date= today)
 
+@app.route('/admin')
+def admin():
+    with open(meeting_path, 'r') as file:
+        meetings = json.load(file)
+    return render_template('admin.html', meetings=meetings, dev=True)
 
-@app.route('/cast')
-async def cast_to_chromecast():
-    driver.get("http://localhost:5000/")
-    time.sleep(5)
-
-    chromecasts, browser = pychromecast.get_chromecasts()
-    print(chromecasts)
-    cast = next((cc for cc in chromecasts if cc.device.friendly_name == cast_name), None)
-    if cast is None:
-        return f"Geen Chromecast met naam '{cast_name}' gevonden!"
-    cast.wait()
-    
-    driver.quit()
-    return f"Meetings getoond op {cast_name}!"
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000,debug=True)
