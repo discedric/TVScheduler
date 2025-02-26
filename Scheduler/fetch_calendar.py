@@ -40,6 +40,8 @@ dump = ""
 timezone = pytz.timezone(config['timezone'])
 current_time = datetime.now(timezone)
 
+skiptime = False
+
 def get_access_token():
     """ Authenticate with Microsoft Graph API and get an access token """
     app = ConfidentialClientApplication(CLIENT_ID, CLIENT_SECRET, authority=f"https://login.microsoftonline.com/{TENANT_ID}")
@@ -80,6 +82,8 @@ def fetch_calendar_events():
                 start_time_local = load_time(start_time_str)
                 end_time_local = load_time(meeting["end"]["dateTime"])
                 
+                if skiptime & (start_time_local < datetime.now(timezone)):
+                    continue
                 
                 all_meetings.append({
                     "room": meeting.get("location").get("displayName").replace("cube;","").strip(),
