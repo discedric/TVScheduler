@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config page</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/Style/index.css">
+</head>
+<body>
+    <div class="container position-relative" style="margin-top:20px;">
+        <h1>Config</h1>
+        <a class="btn btn-primary position-absolute top-0 end-0 m-2" href="/logout">logout</a>
+        <a class="btn btn-primary position-absolute top-0 start-0 m-2" href="/admin">Admin</a>
+
+        <form id="configForm">
+            <div class="mb-3">
+                <label for="timezone" class="form-label">Timezone:</label>
+                <select id="timezone" name="timezone" class="form-control">
+                    {% for tz in timezones %}
+                    <option value="{{ tz }}" {% if tz == config['timezone'] %}selected{% endif %}>{{ tz }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <h2>Page Settings</h2>
+            <div class="d-flex p-2 gap-2">
+                
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="show_title" name="show_title" class="form-check-input" {% if config['show_title'] %}checked{% endif %}>
+                    <label for="show_title" class="form-check-label">Show Title</label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="show_subject" name="show_subject" class="form-check-input" {% if config['show_subject'] %}checked{% endif %}>
+                    <label for="show_subject" class="form-check-label">Show Subject</label>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="skiptime" name="skiptime" class="form-check-input" {% if config['skiptime'] %}checked{% endif %}>
+                    <label for="skiptime" class="form-check-label">filter meetings(tijd)</label>
+                </div>
+            </div>
+            
+            <h2>Credentials</h2>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">password:</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" value="{{ config['password'] }}">
+                    <span class="input-group-text" onclick="toggleVisibility('password')">
+                        <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="CLIENT_ID" class="form-label">Client ID:</label>
+                <div class="input-group">
+                    <input type="password" id="CLIENT_ID" name="CLIENT_ID" class="form-control" value="{{ config['CLIENT_ID'] }}">
+                    <span class="input-group-text" onclick="toggleVisibility('CLIENT_ID')">
+                        <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="CLIENT_SECRET" class="form-label">Client Secret:</label>
+                <div class="input-group">
+                    <input type="password" id="CLIENT_SECRET" name="CLIENT_SECRET" class="form-control" value="{{ config['CLIENT_SECRET'] }}">
+                    <span class="input-group-text" onclick="toggleVisibility('CLIENT_SECRET')">
+                        <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="TENANT_ID" class="form-label">Tenant ID:</label>
+                <div class="input-group">
+                    <input type="password" id="TENANT_ID" name="TENANT_ID" class="form-control" value="{{ config['TENANT_ID'] }}">
+                    <span class="input-group-text" onclick="toggleVisibility('TENANT_ID')">
+                        <svg viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            
+            <h2>Room Calendars</h2>
+            <div id="roomCalendars">
+                {% for room, email in config['ROOM_CALENDARS'].items() %}
+                <div class="mb-3 d-flex align-items-center room-entry">
+                    <input type="text" name="room" class="form-control me-2" style="width: 20%;" value="{{ room }}" placeholder="Room Name">
+                    <input type="text" name="email" class="form-control me-2" style="width: 80%;" value="{{ email }}" placeholder="Room Email">
+                    <button type="button" class="btn btn-danger" onclick="removeRoom(this)">-</button>
+                </div>
+                {% endfor %}
+                <button type="button" class="btn btn-success" onclick="addRoom()">+</button>
+            </div>
+            
+            <button type="button" class="btn btn-primary" onclick="saveConfig()">Save Config</button>
+        </form>
+    </div>
+    <script type="text/javascript" src="../static/js/config.js"></script>
+</body>
+</html>

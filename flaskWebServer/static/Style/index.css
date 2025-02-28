@@ -9,18 +9,34 @@ body::-webkit-scrollbar {
     display: none; /* Voor Chrome, Safari */
 }
 
+.cog-icon {
+    z-index: -1;
+    opacity: 0.5;
+}
+
 .container {
     max-width: 800px;
-    margin: 20px auto;
+    min-height: 280px;
+    margin: 0px auto;
     padding: 20px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 h1 {
     text-align: center;
     color: #333;
 }
+
+.meetingless {
+    display: flex;
+    justify-content: center; /* Horizontaal centreren */
+    align-items: center;     /* Verticaal centreren */
+    height: 100%;            /* Zorg dat de parent-div de hoogte vult */
+    margin: 0;
+}
+
 
 .meetingroom {
     margin-bottom: 15px;
@@ -48,8 +64,15 @@ h1 {
 
 .meeting-container {
     display: flex;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
     gap: 10px;
+}
+
+.meetingless-container{
+    height:280px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Flexbox voor attendees */

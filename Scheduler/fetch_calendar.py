@@ -40,7 +40,7 @@ dump = ""
 timezone = pytz.timezone(config['timezone'])
 current_time = datetime.now(timezone)
 
-skiptime = False
+skiptime = config['skiptime']
 
 def get_access_token():
     """ Authenticate with Microsoft Graph API and get an access token """
@@ -82,7 +82,7 @@ def fetch_calendar_events():
                 start_time_local = load_time(start_time_str)
                 end_time_local = load_time(meeting["end"]["dateTime"])
                 
-                if skiptime & (start_time_local < datetime.now(timezone)):
+                if skiptime & (end_time_local < datetime.now(timezone)):
                     continue
                 
                 all_meetings.append({

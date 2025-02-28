@@ -1,18 +1,4 @@
 setInterval(function() {
-    fetch(window.location.href, { cache: "no-store" }) // Voorkomt caching
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            const newMeetings = doc.querySelector("#meetings");
-            if (newMeetings) {
-                document.querySelector("#meetings").innerHTML = newMeetings.innerHTML;
-            }
-        })
-        .catch(error => console.error("Fout bij het ophalen van meetings:", error));
-}, 300000); // 5 minuten in milliseconden
-
-setInterval(function() {
     // Krijg de huidige tijd
     const now = new Date();
     
@@ -26,9 +12,9 @@ setInterval(function() {
             .then(html => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, "text/html");
-                const newMeetings = doc.querySelector("#meetings");
-                if (newMeetings) {
-                    document.querySelector("#meetings").innerHTML = newMeetings.innerHTML;
+                const newContainer = doc.querySelector(".container");
+                if (newContainer) {
+                    document.querySelector(".container").innerHTML = newContainer.innerHTML;
                 }
             })
             .catch(error => console.error("Fout bij het ophalen van meetings:", error));
